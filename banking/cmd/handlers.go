@@ -8,7 +8,6 @@ import (
 	"github.com/H-proshanto/go-banking-microservice/banking/service"
 )
 
-
 type CustomerHandlers struct {
 	service service.CustomerService
 }
@@ -23,4 +22,3 @@ func (ch *CustomerHandlers) getAllCustomers(w http.ResponseWriter, r *http.Reque
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(customers)
 }
-

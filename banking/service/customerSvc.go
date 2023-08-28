@@ -11,11 +11,11 @@ type DefaultCustomerService struct {
 }
 
 func (s DefaultCustomerService) GetAllCustomers() ([]*domain.Customer, error) {
-	 return s.repo.FindAll()
+	return s.repo.FindAll()
 }
 
-func NewCustomerService(repo domain.CustomerRepository) DefaultCustomerService {
-	return DefaultCustomerService{
+func NewCustomerService(repo domain.CustomerRepository) *DefaultCustomerService {
+	return &DefaultCustomerService{
 		repo: repo,
 	}
 }

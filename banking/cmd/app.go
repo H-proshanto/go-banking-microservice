@@ -14,11 +14,10 @@ func Start() {
 
 	router := mux.NewRouter()
 
-
-	ch := CustomerHandlers{service : service.NewCustomerService(domain.NewCustomerRepositoryStub())}
+	// ch := CustomerHandlers{service: service.NewCustomerService(domain.NewCustomerRepositoryStub())}
+	ch := CustomerHandlers{service: service.NewCustomerService(domain.NewCustomerRepoDB())}
 	router.HandleFunc("/customers", ch.getAllCustomers).Methods(http.MethodGet)
-	
 
-	fmt.Printf("Server started on %v", "0.0.0.0:8000")
+	fmt.Printf("Server started on %v \n", "0.0.0.0:8000")
 	log.Fatal(http.ListenAndServe("0.0.0.0:8000", router))
 }
