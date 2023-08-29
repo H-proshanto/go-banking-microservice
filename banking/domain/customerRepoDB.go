@@ -1,8 +1,11 @@
 package domain
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 
+	"github.com/H-proshanto/go-banking-microservice/banking/errs"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -12,7 +15,7 @@ type CustomerRepoDB struct {
 }
 
 func NewCustomerRepoDB() *CustomerRepoDB {
-	dsn := ""
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable ", "localhost", "postgres", "password", "banking", "5432")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -24,7 +27,7 @@ func NewCustomerRepoDB() *CustomerRepoDB {
 
 }
 
-func (r *CustomerRepoDB) FindAll() ([]*Customer, error) {
+func (r *CustomerRepoDB) FindAll() ([]*Customer, *errs.AppError) {
 
 	findAllSqlQuery := "SELECT customer_id, name, city, zipcode, date_of_birth, status from customers"
 
@@ -33,7 +36,7 @@ func (r *CustomerRepoDB) FindAll() ([]*Customer, error) {
 	if err != nil {
 		log.Println("Error while querying customer table" + err.Error())
 
-		return nil, err
+		return nil, errs.NewUnexpectedError("something unexpected happend")
 	}
 
 	defer rows.Close()
@@ -45,13 +48,38 @@ func (r *CustomerRepoDB) FindAll() ([]*Customer, error) {
 		err := rows.Scan(&c.ID, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
 
 		if err != nil {
-			log.Println("Error while scanning customers" + err.Error())
-
-			return nil, err
+			if err == sql.ErrNoRows {
+				return nil, errs.NewNotFoundError("Customers not found")
+			} else {
+				log.Println("Error while scanning customers" + err.Error())
+				return nil, errs.NewUnexpectedError("unexpected database error")
+			}
 		}
 		customers = append(customers, &c)
 	}
 
 	return customers, nil
+
+}
+
+func (r *CustomerRepoDB) ById(id string) (*Customer, *errs.AppError) {
+	findCustomerByIdSqlQuery := "SELECT customer_id, name, city, zipcode, date_of_birth, status FROM customers WHERE customer_id = ?"
+
+	row := r.db.Raw(findCustomerByIdSqlQuery, id).Row()
+
+	var c Customer
+
+	err := row.Scan(&c.ID, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errs.NewNotFoundError("Customer not found")
+		} else {
+			log.Println("Error while scanning customer" + err.Error())
+			return nil, errs.NewUnexpectedError("unexpected database error")
+		}
+	}
+
+	return &c, nil
 
 }
