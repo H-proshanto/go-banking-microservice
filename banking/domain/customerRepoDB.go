@@ -2,7 +2,6 @@ package domain
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/H-proshanto/go-banking-microservice/banking/errs"
@@ -15,7 +14,7 @@ type CustomerRepoDB struct {
 }
 
 func NewCustomerRepoDB() *CustomerRepoDB {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable ", "localhost", "postgres", "password", "banking", "5432")
+	dsn := ""
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
