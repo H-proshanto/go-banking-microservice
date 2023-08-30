@@ -2,6 +2,7 @@ package domain
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/H-proshanto/go-banking-microservice/banking/errs"
@@ -14,7 +15,7 @@ type CustomerRepoDB struct {
 }
 
 func NewCustomerRepoDB() *CustomerRepoDB {
-	dsn := ""
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable ", "localhost", "postgres", "password", "banking", "5432")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
@@ -26,11 +27,19 @@ func NewCustomerRepoDB() *CustomerRepoDB {
 
 }
 
-func (r *CustomerRepoDB) FindAll() ([]*Customer, *errs.AppError) {
+func (r *CustomerRepoDB) FindAll(status string) ([]*Customer, *errs.AppError) {
+	var rows *sql.Rows
+	var err error
 
-	findAllSqlQuery := "SELECT customer_id, name, city, zipcode, date_of_birth, status from customers"
+	if status == "" {
+		findAllSqlQuery := "SELECT customer_id, name, city, zipcode, date_of_birth, status from customers"
+		rows, err = r.db.Raw(findAllSqlQuery).Rows()
 
-	rows, err := r.db.Raw(findAllSqlQuery).Rows()
+	} else {
+		findAllSqlQuery := "SELECT customer_id, name, city, zipcode, date_of_birth, status from customers WHERE status = ?"
+		rows, err = r.db.Raw(findAllSqlQuery, status).Rows()
+
+	}
 
 	if err != nil {
 		log.Println("Error while querying customer table" + err.Error())
