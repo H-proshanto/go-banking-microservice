@@ -3,9 +3,9 @@ package domain
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/H-proshanto/go-banking-microservice/banking/errs"
+	"github.com/H-proshanto/go-banking-microservice/banking/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -18,6 +18,7 @@ func NewCustomerRepoDB() *CustomerRepoDB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable ", "localhost", "postgres", "password", "banking", "5432")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
+		logger.Error(err.Error())
 		panic(err)
 	}
 
@@ -42,8 +43,7 @@ func (r *CustomerRepoDB) FindAll(status string) ([]*Customer, *errs.AppError) {
 	}
 
 	if err != nil {
-		log.Println("Error while querying customer table" + err.Error())
-
+		logger.Error("Error while querying customer table" + err.Error())
 		return nil, errs.NewUnexpectedError("something unexpected happend")
 	}
 
@@ -59,7 +59,7 @@ func (r *CustomerRepoDB) FindAll(status string) ([]*Customer, *errs.AppError) {
 			if err == sql.ErrNoRows {
 				return nil, errs.NewNotFoundError("Customers not found")
 			} else {
-				log.Println("Error while scanning customers" + err.Error())
+				logger.Error("Error while scanning customers" + err.Error())
 				return nil, errs.NewUnexpectedError("unexpected database error")
 			}
 		}
@@ -83,7 +83,7 @@ func (r *CustomerRepoDB) ById(id string) (*Customer, *errs.AppError) {
 		if err == sql.ErrNoRows {
 			return nil, errs.NewNotFoundError("Customer not found")
 		} else {
-			log.Println("Error while scanning customer" + err.Error())
+			logger.Error("Error while scanning customer" + err.Error())
 			return nil, errs.NewUnexpectedError("unexpected database error")
 		}
 	}
