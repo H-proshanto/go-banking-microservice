@@ -27,7 +27,6 @@ func (r *CustomerRepoDB) FindAll(status string) ([]*Customer, *errs.AppError) {
 		findAllSqlQuery := "SELECT customer_id, name, city, zipcode, date_of_birth, status from customers"
 		err = r.db.Select(&customers, findAllSqlQuery)
 	} else {
-		logger.Error(status)
 		findAllSqlQuery := "SELECT customer_id, name, city, zipcode, date_of_birth, status from customers WHERE status = $1"
 		err = r.db.Select(&customers, findAllSqlQuery, status)
 	}
