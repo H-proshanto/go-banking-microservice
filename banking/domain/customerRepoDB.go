@@ -2,7 +2,6 @@ package domain
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/H-proshanto/go-banking-microservice/banking/errs"
 	"github.com/H-proshanto/go-banking-microservice/banking/logger"
@@ -14,18 +13,10 @@ type CustomerRepoDB struct {
 	db *sqlx.DB
 }
 
-func NewCustomerRepoDB() *CustomerRepoDB {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable ", "localhost", "postgres", "password", "banking", "5432")
-	db, err := sqlx.Connect("postgres", dsn)
-	if err != nil {
-		logger.Error(err.Error())
-		panic(err)
-	}
-
+func NewCustomerRepoDB(dbClient *sqlx.DB) *CustomerRepoDB {
 	return &CustomerRepoDB{
-		db: db,
+		db: dbClient,
 	}
-
 }
 
 func (r *CustomerRepoDB) FindAll(status string) ([]*Customer, *errs.AppError) {
